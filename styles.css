@@ -6,11 +6,19 @@ div{
 }
 canvas {
 	border:1px solid #000000;
-	margin: 10px;
+	margin: 5px;
 }
 form{
-	margin: 10px;
+	margin: 5px;
 }
 button{
-	margin: 10px;
+	margin: 5px;
+}
+
+#info{
+	margin: auto;
+	border: 1px solid #000000;
+	border-color: "black";
+	border-radius: 15px;
+	max-width: 500px;
 }

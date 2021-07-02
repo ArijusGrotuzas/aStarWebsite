@@ -1,3 +1,5 @@
+var cubes = [];
+
 function random_2d_array(height, width, ratio){
 		var base = new Array(height)
 
@@ -24,33 +26,77 @@ function draw_context(height, width, size){
 	var canvas = document.getElementById('content');
 	var ctx = canvas.getContext('2d');
 
+	cubes = [];
+
 	var arr = random_2d_array(size, size, 0.85);
-	
 	var cube_width = width/size;
-	var cube_height = height/size;
+	var cube_height = (height - 20)/size;
 
 	for (var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){
 			if (arr[i][j] == 0){
 				ctx.fillStyle = "white";
-         		ctx.fillRect(cube_width * i, cube_height * j, cube_width, cube_height);
+         		ctx.fillRect(cube_width * i, cube_height * j + 20, cube_width, cube_height);
          		ctx.beginPath();
-				ctx.rect(cube_width * i, cube_height * j, cube_width, cube_height);
+				ctx.rect(cube_width * i, cube_height * j + 20, cube_width, cube_height);
 				ctx.stroke();
+				cubes.push({x: (cube_width * i) + (cube_width/2), y: (cube_height * j) + 20 + (cube_height/2), w: cube_width, h: cube_height});
 			}
 			else if(arr[i][j] == 1){
 				ctx.fillStyle = "black";
-         		ctx.fillRect(cube_width * i, cube_height * j, cube_width, cube_height);
+         		ctx.fillRect(cube_width * i, cube_height * j + 20, cube_width, cube_height);
 			}
 		}
 	}
 }
 
+function windowToCanvas(canvas, x, y) {
+   var bbox = canvas.getBoundingClientRect();
+   return {x: Math.round(x - bbox.left * (canvas.width  / bbox.width)), y: Math.round(y - bbox.top  * (canvas.height / bbox.height))};
+}
+
+document.getElementById("content").onmousemove = function (e) {
+	var canvas = document.getElementById("content");
+	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
+
+	var ctx = canvas.getContext("2d");
+	ctx.font = "18px Arial";
+	ctx.fillStyle = "grey";
+	ctx.fillRect(0, 0, canvas.width, 20);
+	ctx.fillStyle = "white";
+	ctx.fillText("x: " + loc.x.toString() + ", y: " + loc.y.toString(), canvas.width/2, 15);
+};
+
+document.getElementById("content").addEventListener("click", function(e){
+	var canvas = document.getElementById("content");
+	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
+	var ctx = canvas.getContext("2d");
+
+	var shortest_diff = cubes[0].w/2;
+	var coordinates = 0;
+
+	for(var i = 0; i < cubes.length; i++){
+		var diff = Math.sqrt(Math.abs(Math.pow(cubes[i].x - loc.x, 2) - Math.pow(cubes[i].y - loc.y, 2)));
+		if(diff < shortest_diff){
+			shortest_diff = diff;
+			coordinates = cubes[i];
+		}
+	}
+
+	var ctx = canvas.getContext("2d");
+	ctx.fillStyle = "grey";
+	ctx.fillRect(coordinates.x - (coordinates.w/2), coordinates.y - (coordinates.h/2), coordinates.w, coordinates.h);
+	ctx.beginPath();
+	ctx.rect(coordinates.x - (coordinates.w/2), coordinates.y - (coordinates.h/2), coordinates.w, coordinates.h);
+	ctx.stroke();
+	
+})
+
 document.getElementById("refresh").addEventListener("click", function(e){
 	e.preventDefault();
 
-	var new_height = document.getElementById("height").value;
-	var new_width = document.getElementById("width").value;
+	var new_height = parseInt(document.getElementById("height").value);
+	var new_width = parseInt(document.getElementById("width").value);
 	var new_size = parseInt(document.getElementById("size").value);
 
 	if (!new_height){
