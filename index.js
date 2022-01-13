@@ -1,120 +1,164 @@
-var cubes = [];
+// Get the canvas and the context to draw on.
+var canvas = document.getElementById('content');
+var ctx = canvas.getContext('2d');
 
+// Array for storing white tiles, e.g. white tiles.
+var squares = [];
+
+// Variable for storing the width of each tile.
+var square_width = null;
+
+// Variable for storing the height of each tile.
+var square_height = null;
+
+var previous_square = {};
+var current_square = {};
+
+/*	Function for creating a random array filler with either zero or one.
+	The function takes in the height and width of desired array and a
+	ratio of zero's to ones, as arguments*/
 function random_2d_array(height, width, ratio){
-		var base = new Array(height)
+	var base = new Array(height)
 
-		for (var i = 0; i < base.length; i++) {
-    		base[i] = new Array(width);
-		}
-
-		for (var i = 0; i < height; i++) {
-    		for (var j = 0; j < width; j++) {
-				var num = Math.random();
-				if (num > ratio){
-					base[i][j] = 1;
-				}
-				else{
-					base[i][j] = 0;
-				}
-    		}
-		}
-
-		return base
+	for (var i = 0; i < base.length; i++) {
+		base[i] = new Array(width);
 	}
 
-function draw_context(height, width, size){
-	var canvas = document.getElementById('content');
-	var ctx = canvas.getContext('2d');
+	for (var i = 0; i < height; i++) {
+		for (var j = 0; j < width; j++) {
+			var num = Math.random();
+			if (num > ratio){
+				base[i][j] = 1;
+			}
+			else{
+				base[i][j] = 0;
+			}
+		}
+	}
 
-	cubes = [];
+	return base
+}
 
-	var arr = random_2d_array(size, size, 0.85);
-	var cube_width = width/size;
-	var cube_height = (height - 20)/size;
+// Draw a square in the canvas
+function drawSquare(color, x, y, width, height){
+	ctx.fillStyle = color;
+	ctx.fillRect(x, y, width, height);
+	ctx.beginPath();
+	ctx.rect(x, y, width, height);
+	ctx.stroke();
+}
+
+// Function for converting page mouse coordinates to canvas coordinates.
+function windowToCanvas(canvas, x, y) {
+	var bbox = canvas.getBoundingClientRect();
+	return {x: Math.round(x - bbox.left * (canvas.width  / bbox.width)), y: Math.round(y - bbox.top  * (canvas.height / bbox.height))};
+}
+
+
+// Function that draws the grid.
+function draw_context(height, width, size, ratio){
+	// Reset the array of tiles and the previous current tile.
+	squares = []
+	previous_square = {};
+	current_square = {};
+
+	var arr = random_2d_array(size, size, ratio);
+
+	square_width = width/size;
+	square_height = (height - 20)/size;
 
 	for (var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){
 			if (arr[i][j] == 0){
-				ctx.fillStyle = "white";
-         		ctx.fillRect(cube_width * i, cube_height * j + 20, cube_width, cube_height);
-         		ctx.beginPath();
-				ctx.rect(cube_width * i, cube_height * j + 20, cube_width, cube_height);
-				ctx.stroke();
-				cubes.push({x: (cube_width * i) + (cube_width/2), y: (cube_height * j) + 20 + (cube_height/2), w: cube_width, h: cube_height});
+				drawSquare("white", square_width * i, square_height * j + 20, square_width, square_height);
+				squares.push({x: (square_width * i) + (square_width/2), y: (square_height * j) + 20 + (square_height/2)});
 			}
 			else if(arr[i][j] == 1){
-				ctx.fillStyle = "black";
-         		ctx.fillRect(cube_width * i, cube_height * j + 20, cube_width, cube_height);
+				drawSquare("black", square_width * i, square_height * j + 20, square_width, square_height);
 			}
 		}
 	}
 }
 
-function windowToCanvas(canvas, x, y) {
-   var bbox = canvas.getBoundingClientRect();
-   return {x: Math.round(x - bbox.left * (canvas.width  / bbox.width)), y: Math.round(y - bbox.top  * (canvas.height / bbox.height))};
-}
-
+// MouseOver event listener attached to the canvas element.
 document.getElementById("content").onmousemove = function (e) {
-	var canvas = document.getElementById("content");
 	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
 
-	var ctx = canvas.getContext("2d");
 	ctx.font = "18px Arial";
 	ctx.fillStyle = "grey";
 	ctx.fillRect(0, 0, canvas.width, 20);
 	ctx.fillStyle = "white";
-	ctx.fillText("x: " + loc.x.toString() + ", y: " + loc.y.toString(), canvas.width/2, 15);
+	ctx.fillText("x: " + loc.x.toString() + ", y: " + loc.y.toString(), canvas.width/2 - 50, 15);
 };
 
+
+// Click event listener attached to the canvas element.
 document.getElementById("content").addEventListener("click", function(e){
-	var canvas = document.getElementById("content");
+
+	// Get the position of mouse inside the canvas
 	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
-	var ctx = canvas.getContext("2d");
 
-	var shortest_diff = cubes[0].w/2;
-	var coordinates = 0;
+	// If current square is initialized, initialize previous square
+	if (current_square){
+		previous_square = {x: current_square.x, y: current_square.y};
+	}
 
-	for(var i = 0; i < cubes.length; i++){
-		var diff = Math.sqrt(Math.abs(Math.pow(cubes[i].x - loc.x, 2) - Math.pow(cubes[i].y - loc.y, 2)));
+	var shortest_diff = square_width/2;
+	var valid_tile = false;
+
+	// Array that loops through all the tiles and check's which tile was clicked.
+	for(var i = 0; i < squares.length; i++){
+
+		// Euclidean distance between current mouse coordinate and the n-th tile.
+		var diff = Math.sqrt(Math.pow(squares[i].x - loc.x, 2) + Math.pow(squares[i].y - loc.y, 2));
+
+		// If the distance is less than radius of a tile, then we found the correct tile.
 		if(diff < shortest_diff){
 			shortest_diff = diff;
-			coordinates = cubes[i];
+			current_square = squares[i];
+			valid_tile = true;
 		}
 	}
 
-	var ctx = canvas.getContext("2d");
-	ctx.fillStyle = "grey";
-	ctx.fillRect(coordinates.x - (coordinates.w/2), coordinates.y - (coordinates.h/2), coordinates.w, coordinates.h);
-	ctx.beginPath();
-	ctx.rect(coordinates.x - (coordinates.w/2), coordinates.y - (coordinates.h/2), coordinates.w, coordinates.h);
-	ctx.stroke();
-	
+	if (valid_tile){
+		/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Draw current square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+		drawSquare("red", current_square.x - (square_width/2), current_square.y - (square_height/2), square_width, square_height);
+
+		if (!(previous_square.x == current_square.x) || !(previous_square.y == current_square.y)){
+			/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Remove previous square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+			drawSquare("white", previous_square.x - (square_width/2), previous_square.y - (square_height/2), square_width, square_height);
+		}
+	}	
 })
 
 document.getElementById("refresh").addEventListener("click", function(e){
 	e.preventDefault();
 
-	var new_height = parseInt(document.getElementById("height").value);
-	var new_width = parseInt(document.getElementById("width").value);
+	var new_ratio = parseFloat(document.getElementById("ratio").value);
 	var new_size = parseInt(document.getElementById("size").value);
 
-	if (!new_height){
-		new_height = canvas.height;
+	if (!new_ratio){
+		new_ratio = 0.85;
 	}
 
-	if(!new_width){
-		new_width = canvas.width;
+	if (new_ratio < 0.0 || new_ratio > 1.0){
+		new_ratio = 0.85;
 	}
 
-	if(!new_size){
+	if(!new_size || new_size < 0 || new_size > 100){
 		new_size = 20;
 	}
 
-	document.getElementById("content").width = new_width;
-	document.getElementById("content").height = new_height;
-
-	draw_context(new_height, new_width, new_size);
+	draw_context(parseInt(screen.availWidth * 0.325), parseInt(screen.availHeight * 0.5787), new_size, new_ratio);
 });
 
-window.onload = draw_context(500, 500, 20);
+function resize_window(){
+	var canvas = document.getElementById("content");
+	canvas.width = parseInt(screen.availWidth * 0.325);
+	canvas.height = parseInt(screen.availHeight * 0.5787);
+
+	draw_context(parseInt(screen.availWidth * 0.325), parseInt(screen.availHeight * 0.5787), 20, 0.85);
+}
+
+window.onload = resize_window;
+

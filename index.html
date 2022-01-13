@@ -6,21 +6,19 @@
 </head>
 <body>
 	<div>
+		<div id = "intro"><p>This is an <strong>A* algorithm</strong> example. The example features an iterface where you can specify two points in a grid. The black tiles are obstacles and the white tiles are available tiles.</p></div>
 		<canvas id = "content" height="500" width="500"></canvas><br>
 		<form>
-			<label for = "height">Height</label>
-			<input id ="height" type="text" name="height">
-			<label for = "width">Width</label>
-			<input id ="width" type="text" name="width">
-			<label for = "width">Size</label>
-			<input id ="size" type="text" name="size"><br>
+			<label for = "ratio"><strong>Ratio</strong></label>
+			<input id ="ratio" type="text" name="ratio" value = "0.85">
+			<label for = "size"><strong>Size</strong></label>
+			<input id ="size" type="text" name="size" value = "20"><br>
 			<button id = "refresh">Refresh</button>
 		</form>
 		<br>
 		<div id = "info">
-			<p>Height - height of the canvas in pixels.</p>
-			<p>Width - width of the canvas in pixels.</p>
-			<p>Size - the number of tiles along the <strong>y</strong> and <strong>x</strong> axis.</p>
+			<p><strong>Ratio</strong> - ratio of number of black tiles (obstacles) to number of white tiles. Setting this value to low numbers might make the algorithm not work. Needs to be in the range between 1 and 0.</p>
+			<p><strong>Size</strong> - the number of tiles along the <strong>y</strong> and <strong>x</strong> axis.</p>
 		</div>
 	</div>
 	<script src="index.js"></script>

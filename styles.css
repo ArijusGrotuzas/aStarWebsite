@@ -4,8 +4,9 @@ div{
 	border-radius: 25px;
 	background-color: grey;
 }
+
 canvas {
-	border:1px solid #000000;
+	border: 1px solid #000000;
 	margin: 5px;
 }
 form{
@@ -15,10 +16,26 @@ button{
 	margin: 5px;
 }
 
+strong {
+	font-size: 18px;
+}
+
 #info{
 	margin: auto;
 	border: 1px solid #000000;
-	border-color: "black";
 	border-radius: 15px;
 	max-width: 500px;
+	background-color: white;
+}
+
+#intro{
+	z-index: 9;
+	margin: auto;
+	max-width: 400px;
+	position: absolute;
+	top: 50px;
+	left: 50px;
+	border: 1px solid #000000;
+	border-radius: 15px;
+	background-color: white;
 }
