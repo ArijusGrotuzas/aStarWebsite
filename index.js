@@ -11,8 +11,11 @@ var square_width = null;
 // Variable for storing the height of each tile.
 var square_height = null;
 
-var previous_square = {};
-var current_square = {};
+// Array for storing the previous and current positions of selected points
+var previous_square = [{}, {}];
+var current_square = [{}, {}];
+
+var pointID = true;
 
 /*	Function for creating a random array filler with either zero or one.
 	The function takes in the height and width of desired array and a
@@ -48,19 +51,37 @@ function drawSquare(color, x, y, width, height){
 	ctx.stroke();
 }
 
+function closestTile(position){
+	var shortest_diff = square_width/2;
+	var tempSquare = null;
+
+	for(var i = 0; i < squares.length; i++){
+
+		// Euclidean distance between current mouse coordinate and the n-th tile.
+		var diff = Math.sqrt(Math.pow(squares[i].x - position.x, 2) + Math.pow(squares[i].y - position.y, 2));
+
+		// If the distance is less than radius of a tile, then we found the correct tile.
+		if(diff < shortest_diff){
+			shortest_diff = diff;
+			tempSquare = squares[i];
+		}
+	}
+
+	return tempSquare;
+}
+
 // Function for converting page mouse coordinates to canvas coordinates.
 function windowToCanvas(canvas, x, y) {
 	var bbox = canvas.getBoundingClientRect();
 	return {x: Math.round(x - bbox.left * (canvas.width  / bbox.width)), y: Math.round(y - bbox.top  * (canvas.height / bbox.height))};
 }
 
-
 // Function that draws the grid.
 function draw_context(height, width, size, ratio){
 	// Reset the array of tiles and the previous current tile.
 	squares = []
-	previous_square = {};
-	current_square = {};
+	previous_square = [{}, {}];
+	current_square = [{}, {}];
 
 	var arr = random_2d_array(size, size, ratio);
 
@@ -80,15 +101,59 @@ function draw_context(height, width, size, ratio){
 	}
 }
 
+function selectTile (index, position, color){
+
+	if(current_square[index]){
+		previous_square[index] = {x: current_square[index].x, y: current_square[index].y};
+	}
+
+	tile = closestTile(position);
+
+	if (current_square[1-index].x == tile.x && current_square[1-index].y == tile.y){
+		return;
+	}
+
+	if (tile){
+
+		current_square[index] = tile;
+
+		/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Draw current square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+		drawSquare(color, current_square[index].x - (square_width/2), current_square[index].y - (square_height/2), square_width, square_height);
+
+		if (!(previous_square[index].x == current_square[index].x) || !(previous_square[index].y == current_square[index].y)){
+			/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Remove previous square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+			drawSquare("white", previous_square[index].x - (square_width/2), previous_square[index].y - (square_height/2), square_width, square_height);
+		}
+	}
+}
+
+document.getElementById("start").addEventListener("click", function(e){
+	e.preventDefault();
+	pointID = true;
+})
+
+document.getElementById("end").addEventListener("click", function(e){
+	e.preventDefault();
+	pointID = false;
+})
+
 // MouseOver event listener attached to the canvas element.
 document.getElementById("content").onmousemove = function (e) {
 	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
+	tile = closestTile(loc);
 
 	ctx.font = "18px Arial";
 	ctx.fillStyle = "grey";
 	ctx.fillRect(0, 0, canvas.width, 20);
 	ctx.fillStyle = "white";
-	ctx.fillText("x: " + loc.x.toString() + ", y: " + loc.y.toString(), canvas.width/2 - 50, 15);
+	//ctx.fillText("Select start and end point.", canvas.width/2 - 50, 15);
+/*
+	if(tile){
+		ctx.fillText("x: " + tile.x.toString() + ", y: " + tile.y.toString(), canvas.width/2 - 50, 15);
+	}
+	else{
+		ctx.fillText("x: " + null + ", y: " + null, canvas.width/2 - 50, 15);
+	}*/
 };
 
 
@@ -98,37 +163,12 @@ document.getElementById("content").addEventListener("click", function(e){
 	// Get the position of mouse inside the canvas
 	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
 
-	// If current square is initialized, initialize previous square
-	if (current_square){
-		previous_square = {x: current_square.x, y: current_square.y};
+	if(pointID){
+		selectTile(0, loc, "red");
 	}
-
-	var shortest_diff = square_width/2;
-	var valid_tile = false;
-
-	// Array that loops through all the tiles and check's which tile was clicked.
-	for(var i = 0; i < squares.length; i++){
-
-		// Euclidean distance between current mouse coordinate and the n-th tile.
-		var diff = Math.sqrt(Math.pow(squares[i].x - loc.x, 2) + Math.pow(squares[i].y - loc.y, 2));
-
-		// If the distance is less than radius of a tile, then we found the correct tile.
-		if(diff < shortest_diff){
-			shortest_diff = diff;
-			current_square = squares[i];
-			valid_tile = true;
-		}
+	else{
+		selectTile(1, loc, "blue");
 	}
-
-	if (valid_tile){
-		/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Draw current square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-		drawSquare("red", current_square.x - (square_width/2), current_square.y - (square_height/2), square_width, square_height);
-
-		if (!(previous_square.x == current_square.x) || !(previous_square.y == current_square.y)){
-			/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Remove previous square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-			drawSquare("white", previous_square.x - (square_width/2), previous_square.y - (square_height/2), square_width, square_height);
-		}
-	}	
 })
 
 document.getElementById("refresh").addEventListener("click", function(e){
