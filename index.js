@@ -2,6 +2,10 @@
 var canvas = document.getElementById('content');
 var ctx = canvas.getContext('2d');
 
+// Width and height of the window
+var canvasWidth = Math.floor(screen.availWidth * 0.325);
+var canvasHeight = Math.floor(screen.availHeight * 0.5787);
+
 // Array for storing white tiles, e.g. white tiles.
 var squares = [];
 
@@ -12,8 +16,8 @@ var square_width = null;
 var square_height = null;
 
 // Array for storing the previous and current positions of selected points
-var previous_square = [{}, {}];
-var current_square = [{}, {}];
+var previous_square = [{}, {}, {}];
+var current_square = [{}, {}, {}];
 
 var pointID = true;
 
@@ -80,27 +84,28 @@ function windowToCanvas(canvas, x, y) {
 function draw_context(height, width, size, ratio){
 	// Reset the array of tiles and the previous current tile.
 	squares = []
-	previous_square = [{}, {}];
-	current_square = [{}, {}];
+	previous_square = [{}, {}, {}];
+	current_square = [{}, {}, {}];
 
 	var arr = random_2d_array(size, size, ratio);
 
 	square_width = width/size;
-	square_height = (height - 20)/size;
+	square_height = height/size;
 
 	for (var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){
 			if (arr[i][j] == 0){
-				drawSquare("white", square_width * i, square_height * j + 20, square_width, square_height);
-				squares.push({x: (square_width * i) + (square_width/2), y: (square_height * j) + 20 + (square_height/2)});
+				drawSquare("white", square_width * i, square_height * j, square_width, square_height);
+				squares.push({x: (square_width * i) + (square_width/2), y: (square_height * j) + (square_height/2)});
 			}
 			else if(arr[i][j] == 1){
-				drawSquare("black", square_width * i, square_height * j + 20, square_width, square_height);
+				drawSquare("black", square_width * i, square_height * j , square_width, square_height);
 			}
 		}
 	}
 }
 
+// Select a tile in the canvas
 function selectTile (index, position, color){
 
 	if(current_square[index]){
@@ -109,11 +114,13 @@ function selectTile (index, position, color){
 
 	tile = closestTile(position);
 
-	if (current_square[1-index].x == tile.x && current_square[1-index].y == tile.y){
-		return;
-	}
-
 	if (tile){
+
+		for(var i = 0; i < current_square.length; i++){
+			if (current_square[i].x == tile.x && current_square[i].y == tile.y){
+				return;
+			}
+		}
 
 		current_square[index] = tile;
 
@@ -127,11 +134,13 @@ function selectTile (index, position, color){
 	}
 }
 
+// Set the start point
 document.getElementById("start").addEventListener("click", function(e){
 	e.preventDefault();
 	pointID = true;
 })
 
+// Set the end point
 document.getElementById("end").addEventListener("click", function(e){
 	e.preventDefault();
 	pointID = false;
@@ -142,18 +151,7 @@ document.getElementById("content").onmousemove = function (e) {
 	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
 	tile = closestTile(loc);
 
-	ctx.font = "18px Arial";
-	ctx.fillStyle = "grey";
-	ctx.fillRect(0, 0, canvas.width, 20);
-	ctx.fillStyle = "white";
-	//ctx.fillText("Select start and end point.", canvas.width/2 - 50, 15);
-/*
-	if(tile){
-		ctx.fillText("x: " + tile.x.toString() + ", y: " + tile.y.toString(), canvas.width/2 - 50, 15);
-	}
-	else{
-		ctx.fillText("x: " + null + ", y: " + null, canvas.width/2 - 50, 15);
-	}*/
+	//selectTile(2, loc, "grey");
 };
 
 
@@ -171,6 +169,7 @@ document.getElementById("content").addEventListener("click", function(e){
 	}
 })
 
+// Create a new random map
 document.getElementById("refresh").addEventListener("click", function(e){
 	e.preventDefault();
 
@@ -189,15 +188,16 @@ document.getElementById("refresh").addEventListener("click", function(e){
 		new_size = 20;
 	}
 
-	draw_context(parseInt(screen.availWidth * 0.325), parseInt(screen.availHeight * 0.5787), new_size, new_ratio);
+	draw_context(canvasWidth, canvasHeight, new_size, new_ratio);
 });
 
+// Size the canvas up to the scale of computer screen
 function resize_window(){
 	var canvas = document.getElementById("content");
-	canvas.width = parseInt(screen.availWidth * 0.325);
-	canvas.height = parseInt(screen.availHeight * 0.5787);
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
 
-	draw_context(parseInt(screen.availWidth * 0.325), parseInt(screen.availHeight * 0.5787), 20, 0.85);
+	draw_context(canvasWidth, canvasHeight, 20, 0.85);
 }
 
 window.onload = resize_window;
