@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="UTF-8">  
 	<title>A*</title>
-	<link href="styles.css" rel="stylesheet" type="text/css">
+	<link href="styles/style.css" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
@@ -17,6 +18,7 @@
 			<button id = "refresh">Refresh</button>
 			<button id = "start"><i class="fa fa-square" style="color:red;"></i> Set start point</button>
 			<button id = "end"><i class="fa fa-square" style="color:blue;"></i> Set end point</button>
+			<button id = "travel"><i class="fa fa-map-o" style="color:blue;"></i> Traverse</button>
 		</form>
 		<br>
 		<div id = "info">
@@ -24,6 +26,7 @@
 			<p><strong>Size</strong> - the number of tiles along the <strong>y</strong> and <strong>x</strong> axis.</p>
 		</div>
 	</div>
-	<script src="index.js"></script>
+	<script src="scripts/a_star.js"></script>
+	<script src="scripts/main.js"></script>
 </body>
 </html>

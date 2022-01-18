@@ -1,13 +1,17 @@
 // Get the canvas and the context to draw on.
-var canvas = document.getElementById('content');
-var ctx = canvas.getContext('2d');
+const canvas = document.getElementById('content');
+const ctx = canvas.getContext('2d');
 
 // Width and height of the window
-var canvasWidth = Math.floor(screen.availWidth * 0.325);
-var canvasHeight = Math.floor(screen.availHeight * 0.5787);
+const canvasWidth = Math.floor(screen.availWidth * 0.325);
+const canvasHeight = Math.floor(screen.availHeight * 0.5787);
+
+// Array of landscape
+var landscape = null;
 
 // Array for storing white tiles, e.g. white tiles.
 var squares = [];
+var path = [];
 
 // Variable for storing the width of each tile.
 var square_width = null;
@@ -16,8 +20,8 @@ var square_width = null;
 var square_height = null;
 
 // Array for storing the previous and current positions of selected points
-var previous_square = [{}, {}, {}];
-var current_square = [{}, {}, {}];
+var previous_square = [{}, {}];
+var current_square = [{}, {}];
 
 var pointID = true;
 
@@ -84,21 +88,21 @@ function windowToCanvas(canvas, x, y) {
 function draw_context(height, width, size, ratio){
 	// Reset the array of tiles and the previous current tile.
 	squares = []
-	previous_square = [{}, {}, {}];
-	current_square = [{}, {}, {}];
+	previous_square = [{}, {}];
+	current_square = [{}, {}];
 
-	var arr = random_2d_array(size, size, ratio);
+	landscape = random_2d_array(size, size, ratio);
 
 	square_width = width/size;
 	square_height = height/size;
 
 	for (var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){
-			if (arr[i][j] == 0){
+			if (landscape[i][j] == 0){
 				drawSquare("white", square_width * i, square_height * j, square_width, square_height);
-				squares.push({x: (square_width * i) + (square_width/2), y: (square_height * j) + (square_height/2)});
+				squares.push({x: (square_width * i) + (square_width/2), y: (square_height * j) + (square_height/2), s: i, v: j});
 			}
-			else if(arr[i][j] == 1){
+			else if(landscape[i][j] == 1){
 				drawSquare("black", square_width * i, square_height * j , square_width, square_height);
 			}
 		}
@@ -146,12 +150,41 @@ document.getElementById("end").addEventListener("click", function(e){
 	pointID = false;
 })
 
+document.getElementById("travel").addEventListener("click", function(e){
+	e.preventDefault();
+	
+	var emptySelection = false;
+
+	if(path){
+		for(var i = 1; i < path.length-1; i++){
+			drawSquare("white", square_width * path[i].x, square_height * path[i].y, square_width, square_height);
+		}
+	}
+
+	for(var i = 0; i < current_square.length; i++){
+
+		if (Object.keys(current_square[i]).length === 0){
+			alert("Missing one of the points.");
+			emptySelection = true;
+		}
+	}
+
+	if (!emptySelection){
+		path = a_star(landscape, {x: current_square[0].s, y: current_square[0].v}, {x: current_square[1].s, y: current_square[1].v}, 1000);
+
+		for(var i = 1; i < path.length-1; i++){
+			setTimeout(function(y){
+				drawSquare("green", square_width * path[y].x, square_height * path[y].y, square_width, square_height)
+			}, (path.length-1 - i) * 100, i);
+			//drawSquare("green", square_width * path[i].x, square_height * path[i].y, square_width, square_height);
+		}
+	}
+})
+
 // MouseOver event listener attached to the canvas element.
 document.getElementById("content").onmousemove = function (e) {
 	var loc = windowToCanvas(canvas, e.clientX, e.clientY);
 	tile = closestTile(loc);
-
-	//selectTile(2, loc, "grey");
 };
 
 
