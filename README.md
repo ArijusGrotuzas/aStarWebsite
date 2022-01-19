@@ -1,1 +1,1 @@
-# a_star_example
+# A* example website
