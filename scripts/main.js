@@ -153,6 +153,8 @@ document.getElementById("end").addEventListener("click", function(e){
 
 document.getElementById("travel").addEventListener("click", function(e){
 	e.preventDefault();
+
+	var diagonal = document.getElementById("diagonal").checked;
 	
 	var emptySelection = false;
 
@@ -171,14 +173,19 @@ document.getElementById("travel").addEventListener("click", function(e){
 	}
 
 	if (!emptySelection){
-		path = a_star(landscape, {x: current_square[0].s, y: current_square[0].v}, {x: current_square[1].s, y: current_square[1].v}, 100000);
+		path = a_star(landscape, {x: current_square[0].s, y: current_square[0].v}, {x: current_square[1].s, y: current_square[1].v}, diagonal, 100000);
 
 		if(path){
+			document.getElementById("warning").innerHTML = "";
+			
 			for(var i = 1; i < path.length-1; i++){
 			setTimeout(function(y){
 				drawSquare("green", square_width * path[y].x, square_height * path[y].y, square_width, square_height)
 				}, (path.length-1 - i) * 50, i);
 			}
+		}
+		else{
+			document.getElementById("warning").innerHTML = "Could not find a path...";
 		}
 	}
 })

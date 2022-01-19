@@ -32,7 +32,6 @@ strong {
 }
 
 #intro{
-	z-index: 9;
 	margin: auto;
 	max-width: 400px;
 	position: absolute;
@@ -41,4 +40,19 @@ strong {
 	border: 1px solid #000000;
 	border-radius: 15px;
 	background-color: white;
+}
+
+#a_star_control{
+	margin: auto;
+	max-width: 400px;
+	border: 1px solid #000000;
+	border-radius: 15px;
+	background-color: white;
+}
+
+.column {
+  float: left;
+  font-size: 15px;
+  width: 50%;
+  padding: 15px;
 }

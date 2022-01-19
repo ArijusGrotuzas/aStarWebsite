@@ -1,4 +1,4 @@
-const directions = [{x: 0, y: 1}, {x: 1, y: 0}, {x: 0, y: -1}, {x: -1, y: 0}]
+const directions = [{x: 0, y: 1}, {x: 1, y: 0}, {x: 0, y: -1}, {x: -1, y: 0}, {x: -1, y: -1}, {x: -1, y: 1}, {x: 1, y: -1}, {x: 1, y: 1}];
 
 class Node {
 	constructor(parent = null, position = null){
@@ -24,7 +24,12 @@ function manhattanDist(node, goalNode){
 	return dist;
 }
 
-function a_star(landscape, start, end, epochs){
+function euclideanDist(node, goalNode){
+	var dist = Math.sqrt(Math.pow(node.position.x - goalNode.position.x, 2) + Math.pow(node.position.y - goalNode.position.y, 2));
+	return dist;
+}
+
+function a_star(landscape, start, end, diag, epochs){
 
 	let startNode = new Node(null, start);
 	let endNode = new Node(null, end);
@@ -67,10 +72,19 @@ function a_star(landscape, start, end, epochs){
 			return path;
 		}
 
+		// Set for storing the number of children
 		var children = [];
 
+		// In case of diagonal movements
+		if(diag){
+			var dirNum = 0;
+		}
+		else{
+			var dirNum = 4;
+		}
+
 		// Generate successors of the current node
-		for(var i = 0; i < directions.length; i++){
+		for(var i = 0; i < directions.length - dirNum; i++){
 			var newPos = {x: currentNode.position.x + directions[i].x, y: currentNode.position.y + directions[i].y};
 
 			// Check if the new position is within the boundaries of the map
@@ -107,7 +121,14 @@ function a_star(landscape, start, end, epochs){
 			if(!skip){
 				// Evaluate the successors 'f' score
 				child.g = currentNode.g + 1;
-				child.h = manhattanDist(child, endNode);
+
+				if(diag){
+					child.h = euclideanDist(child, endNode);
+				}
+				else{
+					child.h = manhattanDist(child, endNode);
+				}
+
 				child.f = child.g + child.h;
 
 				// Check if a node with the same position in open set has lower 'f' score

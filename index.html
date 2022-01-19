@@ -8,17 +8,22 @@
 </head>
 <body>
 	<div>
-		<div id = "intro"><p>This is an <strong>A* algorithm</strong> example. The example features an iterface where you can specify two points in a grid. The black tiles are obstacles and the white tiles are available tiles.</p></div>
+		<div id = "intro" class = "column"><p>This is an <strong>A* algorithm</strong> example. The example features an iterface where you can specify two points in a grid. The black tiles are obstacles and the white tiles are available tiles.</p></div>
 		<canvas id = "content" height="500" width="500"></canvas><br>
 		<form>
 			<label for = "ratio"><strong>Ratio</strong></label>
 			<input id ="ratio" type="text" name="ratio" value = "0.85">
 			<label for = "size"><strong>Size</strong></label>
-			<input id ="size" type="text" name="size" value = "10"><br>
-			<button id = "refresh">Refresh</button>
-			<button id = "start"><i class="fa fa-square" style="color:red;"></i> Set start point</button>
-			<button id = "end"><i class="fa fa-square" style="color:blue;"></i> Set end point</button>
-			<button id = "travel"><i class="fa fa-map-o" style="color:blue;"></i> Traverse</button>
+			<input id ="size" type="text" name="size" value = "10">
+			<button id = "refresh">Refresh</button><br><br>
+			<div id = "a_star_control">
+				<button id = "start"><i class="fa fa-square" style="color:red;"></i> Set start point</button>
+				<button id = "end"><i class="fa fa-square" style="color:blue;"></i> Set end point</button>
+				<button id = "travel"><i class="fa fa-map-o" style="color:blue;"></i> Traverse</button><br>
+				<input type="checkbox" id="diagonal" name="diagonal">
+	  			<label for="daigonal"> Allow diagonal movement </label><br>
+	  			<p id = "warning" style = "color:red;"></p>
+  			</div>
 		</form>
 		<br>
 		<div id = "info">
