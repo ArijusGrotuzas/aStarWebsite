@@ -3,15 +3,15 @@ const canvas = document.getElementById('content');
 const ctx = canvas.getContext('2d');
 
 // Width and height of the window
-const canvasWidth = Math.floor(screen.availWidth * 0.325);
-const canvasHeight = Math.floor(screen.availHeight * 0.5787);
+const canvasWidth = parseInt(screen.availWidth * 0.325);
+const canvasHeight = parseInt(screen.availHeight * 0.5787);
 
 // Array of landscape
 var landscape = null;
 
 // Array for storing white tiles, e.g. white tiles.
 var squares = [];
-var path = [];
+var path = null;
 
 // Variable for storing the width of each tile.
 var square_width = null;
@@ -90,6 +90,7 @@ function draw_context(height, width, size, ratio){
 	squares = []
 	previous_square = [{}, {}];
 	current_square = [{}, {}];
+	path = [];
 
 	landscape = random_2d_array(size, size, ratio);
 
@@ -170,13 +171,14 @@ document.getElementById("travel").addEventListener("click", function(e){
 	}
 
 	if (!emptySelection){
-		path = a_star(landscape, {x: current_square[0].s, y: current_square[0].v}, {x: current_square[1].s, y: current_square[1].v}, 1000);
+		path = a_star(landscape, {x: current_square[0].s, y: current_square[0].v}, {x: current_square[1].s, y: current_square[1].v}, 100000);
 
-		for(var i = 1; i < path.length-1; i++){
+		if(path){
+			for(var i = 1; i < path.length-1; i++){
 			setTimeout(function(y){
 				drawSquare("green", square_width * path[y].x, square_height * path[y].y, square_width, square_height)
-			}, (path.length-1 - i) * 100, i);
-			//drawSquare("green", square_width * path[i].x, square_height * path[i].y, square_width, square_height);
+				}, (path.length-1 - i) * 50, i);
+			}
 		}
 	}
 })
@@ -221,17 +223,26 @@ document.getElementById("refresh").addEventListener("click", function(e){
 		new_size = 20;
 	}
 
-	draw_context(canvasWidth, canvasHeight, new_size, new_ratio);
+	draw_context(canvas.width, canvas.height, new_size, new_ratio);
 });
 
 // Size the canvas up to the scale of computer screen
 function resize_window(){
-	var canvas = document.getElementById("content");
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
 
-	draw_context(canvasWidth, canvasHeight, 20, 0.85);
+	console.log(canvasHeight);
+	console.log(canvasWidth);
+
+	draw_context(canvas.width, canvas.height, 10, 0.8);
+
+	console.log(square_width);
+	console.log(square_height);
 }
 
-window.onload = resize_window;
+const myTimeout = setTimeout(resize_window, 10);
 
+//window.onload = resize_window;
+
+// 47.6
+// 49.9

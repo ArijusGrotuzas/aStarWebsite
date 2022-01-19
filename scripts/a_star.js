@@ -24,12 +24,6 @@ function manhattanDist(node, goalNode){
 	return dist;
 }
 
-function f(node, goalNode){
-	node.g = node.parent.g + 1;
-	node.h = manhattanDist(node, goalNode);
-	node.f = node.g + node.h;
-}
-
 function a_star(landscape, start, end, epochs){
 
 	let startNode = new Node(null, start);
@@ -39,10 +33,10 @@ function a_star(landscape, start, end, epochs){
 	var closedSet = [];
 
 	openSet.push(startNode);
-	console.log(openSet.length);
 
 	var index = 0;
-	while(openSet.length > 0 || index < epochs){
+	while(openSet.length > 0 && index < epochs){
+
 		// Initialize the first node in the open set as the current node
 		var currentNode = openSet[0];
 		var currentIndex = 0;
@@ -89,38 +83,45 @@ function a_star(landscape, start, end, epochs){
 				continue;
 			}
 
-			// Append each child to the open set
-			let child = new Node(currentNode, newPos);
+			// Append each child to the children's set
+			var child = new Node(currentNode, newPos);
 			children.push(child);
 		}
-
-		//console.log(children);
 
 		// Calculate each child's heuristic function
 		for(var i = 0; i < children.length; i++){
 
-			// Evaluate the successors 'f' score
-			f(children[i], endNode);
-			
+			// Get the child object
+			var child = children[i];
+
 			// Variable for ignoring the successor
 			var skip = false
 
-			// Check if a node with the same position in open set has lower 'f' score
-			for(var j = 0; j < openSet.length; j++){
-				if (comparePos(children[i], openSet[j]) && openSet[j].f < children[i].f){
+			for(var j = 0; j < closedSet.length; j++){
+				if (comparePos(child, closedSet[j])){
 					skip = true;
+					break;
 				}
 			}
 
-			// Check if a node with the same position in closed set has lower 'f' score
-			for(var j = 0; j < closedSet.length; j++){
-				if (comparePos(children[i], closedSet[j]) && closedSet[j].f < children[i].f){
-					skip = true;
+			if(!skip){
+				// Evaluate the successors 'f' score
+				child.g = currentNode.g + 1;
+				child.h = manhattanDist(child, endNode);
+				child.f = child.g + child.h;
+
+				// Check if a node with the same position in open set has lower 'f' score
+				for(var j = 0; j < openSet.length; j++){
+					if (comparePos(child, openSet[j]) && child.g >= openSet[j].g){
+						skip = true;
+						break;
+					}
 				}
 			}
 
 			if(skip){
 				continue;
+				console.log(index);
 			}
 
 			openSet.push(children[i]);
