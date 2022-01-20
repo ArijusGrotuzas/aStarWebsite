@@ -7,28 +7,50 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-	<div>
-		<div id = "intro" class = "column"><p>This is an <strong>A* algorithm</strong> example. The example features an iterface where you can specify two points in a grid. The black tiles are obstacles and the white tiles are available tiles.</p></div>
-		<canvas id = "content" height="500" width="500"></canvas><br>
-		<form>
-			<label for = "ratio"><strong>Ratio</strong></label>
-			<input id ="ratio" type="text" name="ratio" value = "0.85">
-			<label for = "size"><strong>Size</strong></label>
-			<input id ="size" type="text" name="size" value = "10">
-			<button id = "refresh">Refresh</button><br><br>
-			<div id = "a_star_control">
-				<button id = "start"><i class="fa fa-square" style="color:red;"></i> Set start point</button>
-				<button id = "end"><i class="fa fa-square" style="color:blue;"></i> Set end point</button>
-				<button id = "travel"><i class="fa fa-map-o" style="color:blue;"></i> Traverse</button><br>
-				<input type="checkbox" id="diagonal" name="diagonal">
-	  			<label for="daigonal"> Allow diagonal movement </label><br>
-	  			<p id = "warning" style = "color:red;"></p>
-  			</div>
-		</form>
-		<br>
-		<div id = "info">
-			<p><strong>Ratio</strong> - ratio of number of black tiles (obstacles) to number of white tiles. Setting this value to low numbers might make the algorithm not work. Needs to be in the range between 1 and 0.</p>
-			<p><strong>Size</strong> - the number of tiles along the <strong>y</strong> and <strong>x</strong> axis.</p>
+	<div class = "back">
+		<div class = "row">
+			<div class = "column left">
+				<div id = "info">
+					<p>This is an <strong>A* algorithm</strong> example. The example features an iterface where you can specify two points in a grid. The black tiles are obstacles and the white tiles are available tiles.</p>
+
+					<p> The algorithm finds the shortest path to arriving to given by maximizing the  <em><strong> f </strong></em> heuristic. The <em><strong> f </strong></em> heuristic is determinded by <em><strong> f = g + h</strong></em>, where <em><strong> g </strong></em> is the distance from the current node to starting node, and <em><strong>h</strong></em> is the distance from current node to the goal node.
+				</div>
+			</div>
+
+			<div class = "column middle">
+				<canvas id = "content" height="500" width="500"></canvas><br>
+				<form>
+					<label for = "ratio"><strong>Ratio</strong></label>
+					<input id ="ratio" type="text" name="ratio" value = "0.85">
+					<label for = "size"><strong>Size</strong></label>
+					<input id ="size" type="text" name="size" value = "20">
+					<button id = "refresh">Refresh</button><br><br>
+					<div id = "control">
+						<button id = "start"><i class="fa fa-square" style="color:red;"></i> Set start point</button>
+						<button id = "end"><i class="fa fa-square" style="color:blue;"></i> Set end point</button>
+						<button id = "travel"><i class="fa fa-map-o" style="color:blue;"></i> Traverse</button><br>
+						<input type="checkbox" id="diagonal" name="diagonal">
+			  			<label for="diagonal"> Allow diagonal movement </label><br>
+			  			<p id = "warning" style = "color:red;"></p>
+		  			</div>
+				</form>
+				<br>
+			</div>
+
+			<div class = "column right">
+				<div id = "info">
+					<p style = "text-align: center"><strong>Map controls</strong></p>
+					<p><strong>Ratio</strong> - ratio of number of black tiles (obstacles) to number of white tiles. Setting this value to low numbers might make the algorithm not work. Needs to be in the range between 1 and 0.</p>
+					<p><strong>Size</strong> - the number of tiles along the <strong>y</strong> and <strong>x</strong> axis.</p>
+					<hr>
+					<p style = "text-align: center"><strong>Legend</strong></p>
+					<p><i class="fa fa-square" style="color:red;"></i> - starting point tile;</p>
+					<p><i class="fa fa-square" style="color:blue;"></i> - end point tile;</p>
+					<p><i class="fa fa-square" style="color:green;"></i> - shortest path tile;</p>
+					<p><i class="fa fa-square" style="color:black;"></i> - obstacle tile;</p>
+					<p><i class="fa fa-square" style="color:white;"></i> - available tile.</p>
+				</div>
+			</div>	
 		</div>
 	</div>
 	<script src="scripts/a_star.js"></script>

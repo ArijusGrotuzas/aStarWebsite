@@ -1,10 +1,6 @@
 // Get the canvas and the context to draw on.
-const canvas = document.getElementById('content');
-const ctx = canvas.getContext('2d');
-
-// Width and height of the window
-const canvasWidth = parseInt(screen.availWidth * 0.325);
-const canvasHeight = parseInt(screen.availHeight * 0.5787);
+var canvas = document.getElementById('content');
+var ctx = canvas.getContext('2d');
 
 // Array of landscape
 var landscape = null;
@@ -20,15 +16,16 @@ var square_width = null;
 var square_height = null;
 
 // Array for storing the previous and current positions of selected points
-var previous_square = [{}, {}];
-var current_square = [{}, {}];
+var previous_squares = [{}, {}];
+var current_squares = [{}, {}];
 
+// Id for determining if a point is a starting point or an end point
 var pointID = true;
 
 /*	Function for creating a random array filler with either zero or one.
 	The function takes in the height and width of desired array and a
 	ratio of zero's to ones, as arguments*/
-function random_2d_array(height, width, ratio){
+function random2DArray(height, width, ratio){
 	var base = new Array(height)
 
 	for (var i = 0; i < base.length; i++) {
@@ -74,37 +71,40 @@ function closestTile(position){
 			tempSquare = squares[i];
 		}
 	}
-
 	return tempSquare;
 }
 
-// Function for converting page mouse coordinates to canvas coordinates.
+// Function for converting pointer's page coordinates to canvas coordinates.
 function windowToCanvas(canvas, x, y) {
 	var bbox = canvas.getBoundingClientRect();
 	return {x: Math.round(x - bbox.left * (canvas.width  / bbox.width)), y: Math.round(y - bbox.top  * (canvas.height / bbox.height))};
 }
 
 // Function that draws the grid.
-function draw_context(height, width, size, ratio){
-	// Reset the array of tiles and the previous current tile.
+function draw_context(size, ratio){
+	// Reset some of the global variables
 	squares = []
-	previous_square = [{}, {}];
-	current_square = [{}, {}];
+	previous_squares = [{}, {}];
+	current_squares = [{}, {}];
 	path = [];
 
-	landscape = random_2d_array(size, size, ratio);
+	landscape = random2DArray(size, size, ratio);
 
-	square_width = width/size;
-	square_height = height/size;
+	square_width = canvas.width/size;
+	square_height = canvas.height/size;
 
 	for (var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){
+
+			var xPos = square_width * i;
+			var yPos = square_height * j;
+
 			if (landscape[i][j] == 0){
-				drawSquare("white", square_width * i, square_height * j, square_width, square_height);
-				squares.push({x: (square_width * i) + (square_width/2), y: (square_height * j) + (square_height/2), s: i, v: j});
+				drawSquare("white", xPos, yPos, square_width, square_height);
+				squares.push({x: xPos + (square_width/2), y: yPos + (square_height/2), s: i, v: j});
 			}
 			else if(landscape[i][j] == 1){
-				drawSquare("black", square_width * i, square_height * j , square_width, square_height);
+				drawSquare("black", xPos, yPos, square_width, square_height);
 			}
 		}
 	}
@@ -113,28 +113,28 @@ function draw_context(height, width, size, ratio){
 // Select a tile in the canvas
 function selectTile (index, position, color){
 
-	if(current_square[index]){
-		previous_square[index] = {x: current_square[index].x, y: current_square[index].y};
+	if(current_squares[index]){
+		previous_squares[index] = {x: current_squares[index].x, y: current_squares[index].y};
 	}
 
 	tile = closestTile(position);
 
 	if (tile){
 
-		for(var i = 0; i < current_square.length; i++){
-			if (current_square[i].x == tile.x && current_square[i].y == tile.y){
+		for(var i = 0; i < current_squares.length; i++){
+			if (current_squares[i].x == tile.x && current_squares[i].y == tile.y){
 				return;
 			}
 		}
 
-		current_square[index] = tile;
+		current_squares[index] = tile;
 
 		/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Draw current square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-		drawSquare(color, current_square[index].x - (square_width/2), current_square[index].y - (square_height/2), square_width, square_height);
+		drawSquare(color, current_squares[index].x - (square_width/2), current_squares[index].y - (square_height/2), square_width, square_height);
 
-		if (!(previous_square[index].x == current_square[index].x) || !(previous_square[index].y == current_square[index].y)){
+		if (!(previous_squares[index].x == current_squares[index].x) || !(previous_squares[index].y == current_squares[index].y)){
 			/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ Remove previous square ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-			drawSquare("white", previous_square[index].x - (square_width/2), previous_square[index].y - (square_height/2), square_width, square_height);
+			drawSquare("white", previous_squares[index].x - (square_width/2), previous_squares[index].y - (square_height/2), square_width, square_height);
 		}
 	}
 }
@@ -164,16 +164,16 @@ document.getElementById("travel").addEventListener("click", function(e){
 		}
 	}
 
-	for(var i = 0; i < current_square.length; i++){
+	for(var i = 0; i < current_squares.length; i++){
 
-		if (Object.keys(current_square[i]).length === 0){
+		if (Object.keys(current_squares[i]).length === 0){
 			alert("Missing one of the points.");
 			emptySelection = true;
 		}
 	}
 
 	if (!emptySelection){
-		path = a_star(landscape, {x: current_square[0].s, y: current_square[0].v}, {x: current_square[1].s, y: current_square[1].v}, diagonal, 100000);
+		path = a_star(landscape, {x: current_squares[0].s, y: current_squares[0].v}, {x: current_squares[1].s, y: current_squares[1].v}, diagonal, 100000);
 
 		if(path){
 			document.getElementById("warning").innerHTML = "";
@@ -230,26 +230,16 @@ document.getElementById("refresh").addEventListener("click", function(e){
 		new_size = 20;
 	}
 
-	draw_context(canvas.width, canvas.height, new_size, new_ratio);
+	draw_context(new_size, new_ratio);
 });
 
 // Size the canvas up to the scale of computer screen
 function resize_window(){
-	canvas.width = canvasWidth;
-	canvas.height = canvasHeight;
-
-	console.log(canvasHeight);
-	console.log(canvasWidth);
-
-	draw_context(canvas.width, canvas.height, 10, 0.8);
-
-	console.log(square_width);
-	console.log(square_height);
+	// Width and height of the window
+	canvas.width = parseInt(screen.availWidth * 0.325);
+	canvas.height = parseInt(screen.availHeight * 0.5787);
+	
+	draw_context(20, 0.8);
 }
 
-const myTimeout = setTimeout(resize_window, 10);
-
-//window.onload = resize_window;
-
-// 47.6
-// 49.9
+window.onload = resize_window;
